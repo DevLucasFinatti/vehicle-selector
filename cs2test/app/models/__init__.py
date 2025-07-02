@@ -1,0 +1,1 @@
+from .automovel import Automovel
