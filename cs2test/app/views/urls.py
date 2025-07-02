@@ -17,8 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from cs2test.app.views.test import test
+from cs2test.app.views.vehicle import create_vehicle
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/test/', test),
+    path('api/vehicle/create', create_vehicle),
 ]

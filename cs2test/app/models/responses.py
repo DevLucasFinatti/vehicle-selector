@@ -28,7 +28,7 @@ class Response:
     @dataclass
     class ErrorResponse(BaseResponse):
         message: str
-        status_code: int = 400
+        status_code: int
         error_details: Optional[Any] = None
         success: bool = False
 

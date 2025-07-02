@@ -5,8 +5,8 @@ from cs2test.app.models.responses import Response as ApiResponse
 from cs2test.app.service.vehicle import Services
 from django.http import HttpResponse
 
-from cs2test.cs2test.app.models.dto.vehicle import VehicleDTO
-from cs2test.cs2test.app.models.enums import BrandEnum, FuelEnum, IpvaEnum, ModelEnum, TransmissionEnum, WheelEnum
+from cs2test.app.models.dto.vehicle import VehicleDTO
+from cs2test.app.models.enums import BrandEnum, FuelEnum, IpvaEnum, ModelEnum, TransmissionEnum, WheelEnum
 
 
 @api_view(['POST'])
@@ -15,6 +15,7 @@ def create_vehicle(request: Request):
         body = request.data
 
         dto = VehicleDTO(
+            name=body["name"],
             wheels=WheelEnum(body["wheels"]),
             brand=BrandEnum(body["brand"]),
             model=ModelEnum(body["model"]),
@@ -31,11 +32,11 @@ def create_vehicle(request: Request):
 
         vehicle = Services.save_vehicle(dto)
 
-        return ApiResponse.CreatedResponse(data=vehicle)
+        return ApiResponse.CreatedResponse(data=vehicle).to_drf_response()
 
     except KeyError as e:
-        return ApiResponse.ErrorResponse(message={"error": f"Missing field: {str(e)}"}, status_code=400)
+        return ApiResponse.ErrorResponse(message={"error": f"Missing field: {str(e)}"}, status_code=400).to_drf_response()
     except ValueError as e:
-        return ApiResponse.ErrorResponse(message={"error": f"Invalid value: {str(e)}"}, status_code=400)
+        return ApiResponse.ErrorResponse(message={"error": f"Invalid value: {str(e)}"}, status_code=400).to_drf_response()
     except Exception as e:
-        return ApiResponse.ErrorResponse(message={"error": str(e)}, status_code=500)
+        return ApiResponse.ErrorResponse(message={"error": str(e)}, status_code=500).to_drf_response()
