@@ -3,6 +3,7 @@ from .enums import WheelEnum, BrandEnum, ModelEnum, FuelEnum, TransmissionEnum, 
 
 class Vehicle(models.Model):
     vehicle_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=50)
     wheels = models.CharField(max_length=10, choices=WheelEnum.choices)
     brand = models.CharField(max_length=20, choices=BrandEnum.choices)
     model = models.CharField(max_length=20, choices=ModelEnum.choices)

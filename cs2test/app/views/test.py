@@ -6,8 +6,4 @@ from cs2test.app.models.responses import Response as ApiResponse
 @api_view(['POST'])
 def test(request: Request):
     
-    return ApiResponse.SuccessResponse(
-        success=True, 
-        status_code=200, 
-        data="Teste foi um sucesso"
-    ).to_drf_response()
+    return ApiResponse.SuccessResponse(data="Teste foi um sucesso").to_drf_response()

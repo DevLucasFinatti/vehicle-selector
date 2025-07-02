@@ -1,1 +1,1 @@
-from .automovel import Automovel
+from .vehicle import Vehicle

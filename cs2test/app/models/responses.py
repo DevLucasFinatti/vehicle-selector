@@ -17,6 +17,13 @@ class Response:
         message: str = "Operação realizada com sucesso"
         status_code: int = 200
         success: bool = True
+    
+    @dataclass
+    class CreatedResponse(BaseResponse):
+        data: Any
+        message: str = "Criação realizada com sucesso"
+        status_code: int = 201
+        success: bool = True
 
     @dataclass
     class ErrorResponse(BaseResponse):
