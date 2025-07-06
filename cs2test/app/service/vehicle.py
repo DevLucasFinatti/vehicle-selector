@@ -1,9 +1,9 @@
 from datetime import date
+import unicodedata
 
 from django.forms import model_to_dict
 from cs2test.app.models import Vehicle
 from cs2test.app.models.responses import Response as ApiResponse
-from cs2test.app.service.vehicle import Services
 from cs2test.app.models.dto.vehicle import VehicleDTO
 
 import json
@@ -64,3 +64,120 @@ class Services:
                 message={"error": str(e)},
                 status_code=500
             ).to_drf_response()
+
+    def standarization(texto: str) -> str:
+        texto = texto.lower().replace(" ", "")
+        texto = unicodedata.normalize('NFD', texto)
+        texto = ''.join(c for c in texto if unicodedata.category(c) != 'Mn')
+        return texto
+    
+    def search_vehicle_by_brand_name(input: str):
+        try:
+            search = Services.standarization(input)
+            results = []
+
+            for vehicle in Vehicle.objects.all():
+                brand = vehicle.brand or ""
+                name = vehicle.name or ""
+
+                key1 = Services.standarization(brand + name)
+                key2 = Services.standarization(name + brand)
+
+                if search in key1 or search in key2:
+                    results.append(model_to_dict(vehicle))
+
+            return results
+
+        except Exception as e:
+            return ApiResponse.ErrorResponse(
+                message={"error": str(e)},
+                status_code=500
+            ).to_drf_response()
+            
+            
+    def search_vehicle(input: str):
+        try:
+            search = Services.standarization(input)
+            results = []
+
+            for vehicle in Vehicle.objects.all():
+                vehicle_dict = model_to_dict(vehicle)
+
+                combined_fields = ""
+                for value in vehicle_dict.values():
+                    if value is not None:
+                        combined_fields += str(value)
+
+                standardized_combined = Services.standarization(combined_fields)
+
+                if search in standardized_combined:
+                    results.append(vehicle_dict)
+
+            return results
+
+        except Exception as e:
+            return ApiResponse.ErrorResponse(
+                message={"error": str(e)},
+                status_code=500
+            ).to_drf_response()
+            
+    def search_vehicle_by_profile(perfil):
+        try:
+            perfil = Services.standarization(perfil)
+
+            perfil_model_map = {
+                "conan": ["PICKUP", "OFFROAD"],
+                "paidefamilia": ["SUV", "MINIVAN", "SEDAN"],
+                "garotao": ["HATCH", "SPORT", "COMPACT"],
+                "fino": ["LUXURY", "ELECTRIC", "SEDAN"]
+            }
+
+            if perfil not in perfil_model_map:
+                return ApiResponse.ErrorResponse(
+                    message={"error": f"Perfil '{perfil}' não encontrado"},
+                    status_code=404
+                ).to_drf_response()
+
+            modelos = perfil_model_map[perfil]
+
+            vehicles = Vehicle.objects.filter(model__in=modelos)
+            results = [model_to_dict(vehicle) for vehicle in vehicles]
+
+            return results
+
+        except Exception as e:
+            return ApiResponse.ErrorResponse(
+                message={"error": str(e)},
+                status_code=500
+            ).to_drf_response()
+
+    def format_vehicle_list(vehicles: list[dict]) -> list[dict]:
+        result = []
+        for v in vehicles:
+            result.append({
+                "nome": v["name"],
+                "marca": v["brand"],
+                "ano": v["manufacture_date"].year,
+                "nitro": v["nitro"],
+                "teto_solar": v["sunroof"],
+                "tipo_combustivel": v["fuel"]
+            })
+        return result
+    
+    def form_response(src_result):
+        for result in src_result:
+            print("════════════════════════════════════")
+            print(f"Nome: {result['name']}")
+            print(f"Marca: {result['brand']}")
+            print(f"Modelo: {result['model']}")
+            print(f"Ano: {result['manufacture_date'].year}")
+            print(f"Cor: {result['color']}")
+            print(f"Combustível: {result['fuel']}")
+            print(f"Teto Solar: {'Sim' if result['sunroof'] else 'Não'}")
+            print(f"Nitro: {'Sim' if result['nitro'] else 'Não'}")
+
+        print("═════════════════════════════════════")
+        print('Estes são os resultados da busca')
+        print('Para prosseguir, digite qualquer coisa')
+        input(": ")
+

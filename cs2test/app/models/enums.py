@@ -20,6 +20,12 @@ class ModelEnum(models.TextChoices):
     HATCH = 'HATCH', _('hatchback')
     SUV = 'SUV', _('suv')
     PICKUP = 'PICKUP', _('pickup')
+    OFFROAD = 'OFFROAD', _('off-r')
+    MINIVAN = 'MINIVAN', _('minivan')
+    LUXURY = 'LUXURY', _('luxury')
+    COMPACT = 'COMPACT', _('compact')
+    ELECTRIC = 'ELECTRIC', _('electric')
+    SPORT = 'SPORT', _('sport')
     OTHER = 'OTHER', _('other')
 
 class FuelEnum(models.TextChoices):
