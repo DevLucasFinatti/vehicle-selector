@@ -102,13 +102,3 @@ As principais funcionalidades de busca são:
 - O script `main.py` controla o fluxo principal, interagindo com o usuário e os serviços.
 
 ---
-
-## Contato
-
-Qualquer dúvida, entre em contato.
-
----
-
-## Licença
-
-Projeto para uso pessoal / acadêmico.
