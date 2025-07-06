@@ -1,10 +1,12 @@
-#!/usr/bin/env python
 import os
 import django
+from django.db import OperationalError
+
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cs2test.settings')
 django.setup()
 
+from cs2test.app.models.vehicle import Vehicle
 from cs2test.app.service.questions import Questions
 from cs2test.app.service.loading import Porcentage
 from cs2test.app.service.vehicle import Services
@@ -12,6 +14,7 @@ from cs2test.app.service.pages import Page
 perfil = ''
 
 def main():
+    initialize_database()
     loop = True
     while loop:
         response = Page.initial_page()
@@ -79,8 +82,38 @@ def get_perfil():
         elif response.lower() == 'n':
             Page.exit_page() 
         
-    
-    
-
+def initialize_database():
+    try:
+        table_exists = Vehicle.objects.exists()
+        
+        print("        ╔════════════════════════════════════════════════╗")
+        print("        ║  Configurando banco de dados automaticamente...║")
+        print("        ╚════════════════════════════════════════════════╝")
+        Page.wait(1)
+        
+        if not table_exists:
+            from django.core.management import call_command
+            call_command('migrate')
+            
+            Page.clear_console()
+            from cs2test.app.service.vehicle import Services
+            print("        ╔════════════════════════════════════════════════╗")
+            print("        ║  Populando banco de dados com veículos...      ║")
+            print("        ╚════════════════════════════════════════════════╝")
+            
+            json_path = 'vehicles_test.json'
+            
+            result = Services.load_and_create_vehicles_from_json(filepath=json_path)
+            print(f"        Resultado: {len(result)} veículos criados")
+            
+            count = Vehicle.objects.count()
+            print(f"        ╔════════════════════════════════════════════════╗")
+            print(f"        ║  Total de veículos cadastrados: {count:<10}    ║")
+            print(f"        ╚════════════════════════════════════════════════╝")
+            Page.wait(2)
+            
+    except Exception as e:
+        print(f"        Erro na inicialização: {str(e)}")
+        
 if __name__ == '__main__':
     main()

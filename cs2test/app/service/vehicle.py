@@ -1,5 +1,6 @@
-from datetime import date
+from datetime import date, datetime
 import unicodedata
+import os
 
 from django.forms import model_to_dict
 from cs2test.app.models import Vehicle
@@ -7,6 +8,8 @@ from cs2test.app.models.responses import Response as ApiResponse
 from cs2test.app.models.dto.vehicle import VehicleDTO
 
 import json
+
+from cs2test.app.service.pages import Page
 
 class Services:
     # def create_vehicles_test():
@@ -181,3 +184,62 @@ class Services:
         print('Para prosseguir, digite qualquer coisa')
         input(": ")
 
+    def load_and_create_vehicles_from_json(filepath):
+        try:
+            if not os.path.exists(filepath):
+                raise FileNotFoundError(f"Arquivo {filepath} não encontrado")
+            
+            with open(filepath, 'r', encoding='utf-8') as f:
+                vehicles_data = json.load(f)
+            
+            created_vehicles = []
+            for data in vehicles_data:
+                try:
+                    # Debug: Mostra os dados que estão sendo processados
+                    print(f"Processando veículo: {data.get('name', 'sem nome')}")
+                    
+                    # Conversão da data
+                    if isinstance(data['manufacture_date'], str):
+                        manufacture_date = datetime.fromisoformat(data['manufacture_date']).date()
+                    else:
+                        manufacture_date = data['manufacture_date']
+                    
+                    # Criação do DTO com tratamento de valores nulos
+                    dto = VehicleDTO(
+                        name=data['name'],
+                        wheels=data['wheels'],
+                        brand=data['brand'],
+                        model=data['model'],
+                        manufacture_date=manufacture_date,
+                        weight_kg=float(data['weight_kg']),
+                        fuel=data['fuel'],
+                        color=data['color'],
+                        mileage=int(data['mileage']),
+                        transmission=data['transmission'],
+                        ipva=data['ipva'],
+                        sunroof=bool(data.get('sunroof', False)),
+                        nitro=bool(data.get('nitro', False)),
+                    )
+                    
+                    # Debug: Mostra o DTO criado
+                    print(f"DTO criado: {dto.__dict__}")
+                    Page.wait(5)
+                    
+                    # Salva o veículo
+                    vehicle = Services.save_vehicle(dto)
+                    created_vehicles.append(vehicle)
+                    
+                    # Debug: Confirmação de salvamento
+                    print(f"Veículo salvo com ID: {vehicle.id}")
+                    
+                except Exception as e:
+                    print(f"Erro ao processar veículo {data.get('name', 'desconhecido')}")
+                    print(f"Detalhes do erro: {str(e)}")
+                    print(f"Dados problemáticos: {data}")
+                    continue
+            
+            return created_vehicles
+        
+        except Exception as e:
+            print(f"Erro ao carregar arquivo JSON: {str(e)}")
+            raise 

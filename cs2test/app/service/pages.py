@@ -219,6 +219,7 @@ class Page:
         ║       Home             Buscar veiculos por:            Comandos:             ║
         ║                             1 - Nome/Marca                  5 - sair         ║ 
         ║                             2 - Geral                                        ║ 
+        ║                             3 - Perfil                                       ║ 
         ║                                                                              ║ 
         ╚══════════════════════════════════════════════════════════════════════════════╝
             """)
