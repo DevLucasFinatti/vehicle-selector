@@ -12,12 +12,6 @@ import json
 from cs2test.app.service.pages import Page
 
 class Services:
-    # def create_vehicles_test():
-    #     with open('caminho/para/o/arquivo.json', 'r', encoding='utf-8') as f:
-    #         data = json.load(f)
-    #         print(data)
-
-
     def build_vehicle(data: VehicleDTO) -> Vehicle:
         return Vehicle(
             name=data.name,
@@ -195,16 +189,13 @@ class Services:
             created_vehicles = []
             for data in vehicles_data:
                 try:
-                    # Debug: Mostra os dados que estão sendo processados
                     print(f"Processando veículo: {data.get('name', 'sem nome')}")
                     
-                    # Conversão da data
                     if isinstance(data['manufacture_date'], str):
                         manufacture_date = datetime.fromisoformat(data['manufacture_date']).date()
                     else:
                         manufacture_date = data['manufacture_date']
                     
-                    # Criação do DTO com tratamento de valores nulos
                     dto = VehicleDTO(
                         name=data['name'],
                         wheels=data['wheels'],
@@ -221,15 +212,8 @@ class Services:
                         nitro=bool(data.get('nitro', False)),
                     )
                     
-                    # Debug: Mostra o DTO criado
-                    print(f"DTO criado: {dto.__dict__}")
-                    Page.wait(5)
-                    
-                    # Salva o veículo
                     vehicle = Services.save_vehicle(dto)
                     created_vehicles.append(vehicle)
-                    
-                    # Debug: Confirmação de salvamento
                     print(f"Veículo salvo com ID: {vehicle.id}")
                     
                 except Exception as e:
@@ -239,7 +223,6 @@ class Services:
                     continue
             
             return created_vehicles
-        
         except Exception as e:
             print(f"Erro ao carregar arquivo JSON: {str(e)}")
             raise 
